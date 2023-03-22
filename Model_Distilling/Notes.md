@@ -43,3 +43,33 @@ PT LOSS -> 归一化后的MSE
 - loss：MLM loss、CE（最后一层）、cosine loss
 
 ### TinyBERT
+精调阶段和预训练阶段联合蒸馏  
+![](https://pic3.zhimg.com/80/v2-803f1809b6db3ad30d52b6b38878b5ca_720w.webp)  
+作者参考其他研究的结论，即注意力矩阵可以捕获到丰富的知识，提出了注意力矩阵的蒸馏，采用教师-学生注意力矩阵logits的MSE作为损失函数（这里不取attention prob是实验表明前者收敛更快）。另外，作者还对embedding进行了蒸馏，同样是采用MSE作为损失。  
+整体loss：  
+![](https://pic1.zhimg.com/80/v2-4c9703b675a0ed1ba291b86805cfdd2c_720w.webp)  
+预训练阶段 -> 只对中间层蒸馏  
+精调阶段 -> 先对中间层蒸馏20epoch，再对最后一层蒸馏3epoch  
+
+### MobileBERT
+专注于减少每层的维度（基于bottleneck机制）  
+![](https://pic2.zhimg.com/80/v2-998207497278455a883bc5081381f1e1_720w.webp)  
+其中a是标准的BERT，b是加入bottleneck的BERT-large，作为教师模型，c是加入bottleneck的学生模型。Bottleneck的原理是在transformer的输入输出各加入一个线性层，实现维度的缩放。对于教师模型，embedding的维度是512，进入transformer后扩大为1024，而学生模型则是从512缩小至128，使得参数量骤减。  
+
+### MiniLM  
+创新点在于蒸馏Valur-Value矩阵：  
+![](https://pic4.zhimg.com/80/v2-a96a5c1332aa89c5ad5f6574074c167b_720w.webp)  
+只蒸馏最后一层，只蒸馏这两个矩阵的KL散度。  
+助教机制 -> 学生层数维度都小很多：先蒸到助教再给学生  
+
+## BERT蒸馏技巧
+### 剪层还是剪维度
+预训练蒸馏：剪层+纬度缩减（数据充分）  
+只想蒸馏精调BERT：剪层，用教师模型的层对学生模型初始化  
+### loss选择
+CE/KL/MSE  
+### T和a如何设置？
+a -> soft-label和hard-label的loss比例，建议soft-label更高  
+T -> 控制预测分布的平滑程度，T越大越能学到teacher泛化信息  
+### 是否逐层蒸馏？
+不建议  
