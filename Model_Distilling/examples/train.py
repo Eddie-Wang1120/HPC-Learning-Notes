@@ -2,11 +2,27 @@ import torch
 from torchvision import datasets, transforms
 from torch.nn import CrossEntropyLoss
 from torch import optim
-from ResNet18 import ResNet18
-from ResNet50 import ResNet50
+from ResNet import ResNet,BasicBlock,Bottleneck
+
+# 默认 num_classes=10
+def ResNet18():
+    return ResNet(BasicBlock, [2, 2, 2, 2])
+    
+def ResNet34():
+    return ResNet(BasicBlock, [3, 4, 6, 3])
+
+def ResNet50():
+    return ResNet(Bottleneck, [3, 4, 6, 3])
+
+def ResNet101():
+    return ResNet(Bottleneck, [3, 4, 23, 3])
+
+def ResNet152():
+    return ResNet(Bottleneck, [3, 8, 36, 3])
+
 
 BATCH_SIZE = 512                        # 超参数batch大小
-EPOCH = 30                              # 总共训练轮数
+EPOCH = 60                              # 总共训练轮数
 save_path = "./CIFAR10_ResNet50.pth"    # 模型权重参数保存位置
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')    # CIFAR10数据集类别
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")                         # 创建GPU运算环境
@@ -67,10 +83,12 @@ def evalute(model, loader):
     return correct / total
 
 
-net = ResNet50(len(classes))
+net = ResNet18()
 net.to(device)                                      # 实例化网络模型并送入GPU
 # net.load_state_dict(torch.load(save_path))          # 使用上次训练权重接着训练
-optimizer = optim.Adam(net.parameters(), lr=0.001)  # 定义优化器
+optimizer = optim.SGD(net.parameters(), lr=0.01,
+                      momentum=0.9, weight_decay=5e-4)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=60)
 loss_function = CrossEntropyLoss()                  # 多分类问题使用交叉熵损失函数
 
 best_acc, best_epoch = 0.0, 0                       # 最好准确度，出现的轮数
