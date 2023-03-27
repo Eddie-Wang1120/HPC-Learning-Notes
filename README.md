@@ -1,9 +1,15 @@
-# Model Compression Notes
+# 高性能计算学习笔记
 
-## Introduction
-The learning notes of Model Compression, including papers and notes about Model Quantization, Model Distilling and Model Pruning.
+## 简介
+高性能计算相关知识学习笔记，包含学习笔记和相关知识的代码demo，在持续完善中。
 
 ## Including
-- Model Quantization
-- Model Distilling
-- Model Pruning
+- 模型量化
+- 模型蒸馏
+- 模型剪枝
+- 分布式训练
+- 异构编程
+- c++
+- python
+- 机器学习训练框架
+- 模型部署
