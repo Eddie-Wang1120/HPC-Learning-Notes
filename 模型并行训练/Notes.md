@@ -99,3 +99,6 @@ Megatorn-LM
 
 ### 混合并行（HP）
 混合使用上述方法
+
+补充知识来源列表：  
+[[论文翻译] 分布式训练 Parameter sharding 之 ZeRO]([https://www.runoob.com](https://www.cnblogs.com/rossiXYZ/p/15785669.html))
